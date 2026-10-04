@@ -1,19 +1,20 @@
-# Implementation Plan — QR Scan Classification + vCard + Tests (v0.4 DRAFT)
+# Implementation Plan — QR Classification, vCard, and Scan History (v0.3)
 
 ## Baseline
 - Repo: https://github.com/RajputDynamic/scanner_generator.git
 - Baseline branch/commit: master @ 52e74014cecf75f00049e289956778a3f56339d4
 - Constraints: preserve stack; no runtime verification in this plan; Jira access unavailable (use provisional IDs).
-- Approved scope: Enhancements A (scan classification fixes), B (vCard generation + backward compatible parsing), C (tests: Flutter unit/widget + Playwright smoke).
+- Approved scope: Enhancements A (scan classification fixes), B (vCard generation + backward compatible parsing), D (scan history).
 
 ## Goals
 1. Correctly classify scanned payloads as URL, CONTACT, or TEXT.
 2. Support generating contact QR in Simple format (existing) and vCard (recommended).
 3. Support parsing/saving both Simple and vCard contacts from scanned payload.
-4. Establish automated tests: Flutter unit/widget and Playwright web smoke.
+4. Add local scan history with basic list + details.
+5. Establish automated tests: Flutter unit/widget + Playwright web smoke.
 
 ## Non-goals
-- No QR history/favorites
+- No favorites/sync
 - No backend/services/accounts
 - No major UI redesign
 - No camera automation in tests
@@ -39,13 +40,24 @@
 - DRAFT-TASK-06: Replace existing scan-type heuristics with classifier; update bottom sheet actions.
 - DRAFT-TASK-05b: Save parsed contact using `flutter_contacts` with graceful permission/error handling.
 
-### Phase 4 — Automated tests
+### Phase 4 — Scan history (local)
+- DRAFT-TASK-08: Add local persistence (Hive or SharedPreferences) for scan records:
+  - payload (raw string)
+  - classified type (URL/CONTACT/TEXT)
+  - parsed display fields (title/subtitle)
+  - timestamp
+- DRAFT-TASK-09: Add History screen:
+  - list of scans (most recent first)
+  - tap to view details with actions (copy/open/save contact)
+  - clear history action (confirm dialog)
+
+### Phase 5 — Automated tests
 - DRAFT-QA-01: Add Flutter unit tests for URL detection, simple contact parsing, vCard encode/decode, classifier behavior.
 - DRAFT-QA-02: Add widget test for Generator Contact mode format toggle.
 - DRAFT-QA-03: Add Playwright smoke test for Flutter Web: Home -> Generator -> Contact -> QR preview visible.
 - DRAFT-QA-04: Add negative tests (malformed URL, malformed vCard) ensuring no crashes and safe behavior.
 
-### Phase 5 — Docs
+### Phase 6 — Docs
 - DRAFT-TASK-07: Update README with explicit commands for run/test/web build and Playwright smoke.
 
 ---
@@ -70,6 +82,7 @@ npx playwright test --reporter=html
 ## Risks
 - False-positive URL detection if bare domains are treated as URLs. Default plan: only http(s)://.
 - vCard format variance. Mitigation: strict minimal subset; ignore unknown fields.
+- Local storage schema migrations. Mitigation: version keys + fallback to clear/rebuild.
 - Flutter web DOM targeting for Playwright. Mitigation: add Semantics labels / stable UI text targets.
 
 ---
@@ -85,6 +98,6 @@ npx playwright test --reporter=html
 ## Jira Mapping
 Jira access unavailable. Keep provisional IDs:
 - DRAFT-EPIC-01
-- DRAFT-STORY-01..04
-- DRAFT-TASK-01..07
+- DRAFT-STORY-01..05
+- DRAFT-TASK-01..09
 - DRAFT-QA-01..04
